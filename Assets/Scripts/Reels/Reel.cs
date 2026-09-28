@@ -8,176 +8,123 @@ public class Reel : MonoBehaviour
     [SerializeField] private RectTransform symbolContainer;
     [SerializeField] private Image[] symbolImages;
 
-    [Header("Reel Settings")]
+    [Header("Settings")]
     [SerializeField] private float symbolHeight = 100f;
-    [SerializeField] private float spinSpeed = 1200f;
+    [SerializeField] private float spinSpeed = 1000f;
     [SerializeField] private float spinDuration = 1.5f;
-    [SerializeField] private float stopDuration = 0.5f;
 
     private SlotSymbol[] symbols;
     private int currentIndex;
-    private bool isSpinning;
 
     public void Setup(SlotSymbol[] availableSymbols)
     {
         symbols = availableSymbols;
 
+        SetupSymbols();
+
         currentIndex = Random.Range(0, symbols.Length);
 
-        SetupSymbols();
-        SetCurrentSymbol();
+        SetPosition(currentIndex);
     }
 
     private void SetupSymbols()
     {
         for (int i = 0; i < symbolImages.Length; i++)
         {
-            int symbolIndex = i % symbols.Length;
+            int index = i % symbols.Length;
 
-            symbolImages[i].sprite = symbols[symbolIndex].symbolSprite;
+            symbolImages[i].sprite = symbols[index].symbolSprite;
 
-            RectTransform rect = symbolImages[i].rectTransform;
+            RectTransform symbolTransform = symbolImages[i].rectTransform;
 
-            rect.anchoredPosition = new Vector2(
-                0f,
-                -i * symbolHeight
-            );
+            symbolTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            symbolTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            symbolTransform.pivot = new Vector2(0.5f, 0.5f);
+
+            symbolTransform.anchoredPosition =
+                new Vector2(0f, -i * symbolHeight);
         }
+
+        symbolContainer.anchorMin = new Vector2(0.5f, 0.5f);
+        symbolContainer.anchorMax = new Vector2(0.5f, 0.5f);
+        symbolContainer.pivot = new Vector2(0.5f, 0.5f);
+
+        symbolContainer.anchoredPosition = Vector2.zero;
     }
 
     public IEnumerator Spin(int targetIndex)
     {
-        if (isSpinning)
-            yield break;
-
-        isSpinning = true;
-
         float elapsed = 0f;
 
         while (elapsed < spinDuration)
         {
             elapsed += Time.deltaTime;
 
-            MoveSymbols(spinSpeed);
+            symbolContainer.anchoredPosition +=
+                Vector2.down * spinSpeed * Time.deltaTime;
+
+            LoopContainer();
 
             yield return null;
         }
 
-        yield return StartCoroutine(
-            StopOnTarget(targetIndex)
-        );
+        yield return StartCoroutine(MoveToTarget(targetIndex));
 
-        isSpinning = false;
+        currentIndex = targetIndex;
+
+        SetPosition(currentIndex);
     }
 
-    private void MoveSymbols(float speed)
+    private void LoopContainer()
     {
-        symbolContainer.anchoredPosition +=
-            Vector2.down * speed * Time.deltaTime;
+        float totalHeight = symbolImages.Length * symbolHeight;
 
-        float resetDistance =
-            symbolImages.Length * symbolHeight;
-
-        if (symbolContainer.anchoredPosition.y <= -resetDistance)
+        if (symbolContainer.anchoredPosition.y <= -totalHeight)
         {
             symbolContainer.anchoredPosition +=
-                Vector2.up * resetDistance;
+                Vector2.up * (totalHeight+ 300f);
         }
     }
 
-    private IEnumerator StopOnTarget(int targetIndex)
+    private IEnumerator MoveToTarget(int targetIndex)
     {
-        int safetyCounter = 0;
+        float targetY = -targetIndex * symbolHeight;
 
-        while (currentIndex != targetIndex && safetyCounter < 100)
-        {
-            safetyCounter++;
-
-            currentIndex++;
-
-            if (currentIndex >= symbols.Length)
-                currentIndex = 0;
-
-            yield return MoveToNextSymbol();
-        }
-
-        yield return MoveToExactPosition();
-    }
-
-    private IEnumerator MoveToNextSymbol()
-    {
         Vector2 startPosition = symbolContainer.anchoredPosition;
 
-        Vector2 targetPosition =
-            startPosition + Vector2.up * symbolHeight;
-
         float elapsed = 0f;
+        float duration = 0.5f;
 
-        while (elapsed < stopDuration)
+        while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
 
-            float t = elapsed / stopDuration;
+            float t = elapsed / duration;
 
             t = Mathf.SmoothStep(0f, 1f, t);
 
-            symbolContainer.anchoredPosition =
-                Vector2.Lerp(
-                    startPosition,
-                    targetPosition,
-                    t
-                );
-
-            yield return null;
-        }
-
-        symbolContainer.anchoredPosition = targetPosition;
-    }
-
-    private IEnumerator MoveToExactPosition()
-    {
-        float targetY =
-            -currentIndex * symbolHeight;
-
-        Vector2 startPosition =
-            symbolContainer.anchoredPosition;
-
-        Vector2 targetPosition =
-            new Vector2(
-                startPosition.x,
-                targetY
+            float y = Mathf.Lerp(
+                startPosition.y,
+                targetY,
+                t
             );
 
-        float elapsed = 0f;
-
-        while (elapsed < stopDuration)
-        {
-            elapsed += Time.deltaTime;
-
-            float t = elapsed / stopDuration;
-
-            t = Mathf.SmoothStep(0f, 1f, t);
-
             symbolContainer.anchoredPosition =
-                Vector2.Lerp(
-                    startPosition,
-                    targetPosition,
-                    t
-                );
+                new Vector2(0f, y);
 
             yield return null;
         }
 
         symbolContainer.anchoredPosition =
-            targetPosition;
+            new Vector2(0f, targetY);
     }
 
-    private void SetCurrentSymbol()
+    private void SetPosition(int index)
     {
         symbolContainer.anchoredPosition =
             new Vector2(
                 0f,
-                -currentIndex * symbolHeight
+                -index * symbolHeight + 300f
             );
     }
 

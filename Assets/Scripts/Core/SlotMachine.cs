@@ -17,6 +17,9 @@ public class SlotMachine : MonoBehaviour
     [SerializeField] private SlotRNG slotRNG;
     [SerializeField] private PayoutSystem payoutSystem;
 
+    [Header("UI")]
+    [SerializeField] private SlotUI slotUI;
+
     private int balance;
     private bool isSpinning;
 
@@ -28,17 +31,28 @@ public class SlotMachine : MonoBehaviour
         {
             reel.Setup(symbols);
         }
+
+        // Show starting balance
+        slotUI.UpdateBalance(balance);
     }
 
     public void Spin()
     {
         if (isSpinning)
+        {
             return;
+        }
 
         if (balance < spinCost)
+        {
             return;
+        }
 
+        // Pay for the spin
         balance -= spinCost;
+
+        // Update balance UI
+        slotUI.UpdateBalance(balance);
 
         StartCoroutine(SpinReels());
     }
@@ -47,20 +61,36 @@ public class SlotMachine : MonoBehaviour
     {
         isSpinning = true;
 
-        int firstResult = slotRNG.GetRandomSymbolIndex(symbols.Length);
-        int secondResult = slotRNG.GetRandomSymbolIndex(symbols.Length);
-        int thirdResult = slotRNG.GetRandomSymbolIndex(symbols.Length);
+        // Generate random result for each reel
+        int firstResult =
+            slotRNG.GetRandomSymbolIndex(symbols.Length);
 
-        StartCoroutine(reels[0].Spin(firstResult));
+        int secondResult =
+            slotRNG.GetRandomSymbolIndex(symbols.Length);
+
+        int thirdResult =
+            slotRNG.GetRandomSymbolIndex(symbols.Length);
+
+        // Start first reel
+        StartCoroutine(
+            reels[0].Spin(firstResult)
+        );
 
         yield return new WaitForSeconds(0.2f);
 
-        StartCoroutine(reels[1].Spin(secondResult));
+        // Start second reel
+        StartCoroutine(
+            reels[1].Spin(secondResult)
+        );
 
         yield return new WaitForSeconds(0.2f);
 
-        yield return StartCoroutine(reels[2].Spin(thirdResult));
+        // Start third reel and wait for it to finish
+        yield return StartCoroutine(
+            reels[2].Spin(thirdResult)
+        );
 
+        // Check result
         CheckResult();
 
         isSpinning = false;
@@ -68,25 +98,37 @@ public class SlotMachine : MonoBehaviour
 
     private void CheckResult()
     {
-        SlotSymbol first = reels[0].GetCurrentSymbol();
-        SlotSymbol second = reels[1].GetCurrentSymbol();
-        SlotSymbol third = reels[2].GetCurrentSymbol();
+        SlotSymbol first =
+            reels[0].GetCurrentSymbol();
 
-        int payout = payoutSystem.CalculatePayout(
-            first,
-            second,
-            third
-        );
+        SlotSymbol second =
+            reels[1].GetCurrentSymbol();
+
+        SlotSymbol third =
+            reels[2].GetCurrentSymbol();
+
+        int payout =
+            payoutSystem.CalculatePayout(
+                first,
+                second,
+                third
+            );
 
         if (payout > 0)
         {
+            // Add winnings
             balance += payout;
 
-            Debug.Log("WIN! Payout: " + payout);
+            // Update UI
+            slotUI.UpdateBalance(balance);
+            slotUI.ShowWin(payout);
+
         }
         else
         {
-            Debug.Log("No Win");
+            // Show losing result
+            slotUI.ShowLose();
+
         }
     }
 
