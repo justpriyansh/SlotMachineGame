@@ -62,14 +62,11 @@ public class SlotMachine : MonoBehaviour
         isSpinning = true;
 
         // Generate random result for each reel
-        int firstResult =
-            slotRNG.GetRandomSymbolIndex(symbols.Length);
+        int firstResult = slotRNG.GetRandomSymbolIndex(symbols.Length);
 
-        int secondResult =
-            slotRNG.GetRandomSymbolIndex(symbols.Length);
+        int secondResult = slotRNG.GetRandomSymbolIndex(symbols.Length);
 
-        int thirdResult =
-            slotRNG.GetRandomSymbolIndex(symbols.Length);
+        int thirdResult = slotRNG.GetRandomSymbolIndex(symbols.Length);
 
         // Start first reel
         StartCoroutine(
@@ -79,16 +76,12 @@ public class SlotMachine : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
 
         // Start second reel
-        StartCoroutine(
-            reels[1].Spin(secondResult)
-        );
+        StartCoroutine( reels[1].Spin(secondResult) );
 
         yield return new WaitForSeconds(0.2f);
 
         // Start third reel and wait for it to finish
-        yield return StartCoroutine(
-            reels[2].Spin(thirdResult)
-        );
+        yield return StartCoroutine(reels[2].Spin(thirdResult));
 
         // Check result
         CheckResult();
@@ -98,21 +91,13 @@ public class SlotMachine : MonoBehaviour
 
     private void CheckResult()
     {
-        SlotSymbol first =
-            reels[0].GetCurrentSymbol();
+        SlotSymbol first = reels[0].GetCurrentSymbol();
 
-        SlotSymbol second =
-            reels[1].GetCurrentSymbol();
+        SlotSymbol second = reels[1].GetCurrentSymbol();
 
-        SlotSymbol third =
-            reels[2].GetCurrentSymbol();
+        SlotSymbol third = reels[2].GetCurrentSymbol();
 
-        int payout =
-            payoutSystem.CalculatePayout(
-                first,
-                second,
-                third
-            );
+        int payout =payoutSystem.CalculatePayout( first,second, third);
 
         if (payout > 0)
         {

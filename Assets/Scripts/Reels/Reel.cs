@@ -60,8 +60,7 @@ public class Reel : MonoBehaviour
         {
             elapsed += Time.deltaTime;
 
-            symbolContainer.anchoredPosition +=
-                Vector2.down * spinSpeed * Time.deltaTime;
+            symbolContainer.anchoredPosition += Vector2.down * spinSpeed * Time.deltaTime;
 
             LoopContainer();
 
@@ -103,29 +102,19 @@ public class Reel : MonoBehaviour
 
             t = Mathf.SmoothStep(0f, 1f, t);
 
-            float y = Mathf.Lerp(
-                startPosition.y,
-                targetY,
-                t
-            );
+            float y = Mathf.Lerp( startPosition.y,targetY,t );
 
-            symbolContainer.anchoredPosition =
-                new Vector2(0f, y);
+            symbolContainer.anchoredPosition =new Vector2(0f, y);
 
             yield return null;
         }
 
-        symbolContainer.anchoredPosition =
-            new Vector2(0f, targetY);
+        symbolContainer.anchoredPosition = new Vector2(0f, targetY);
     }
 
     private void SetPosition(int index)
     {
-        symbolContainer.anchoredPosition =
-            new Vector2(
-                0f,
-                -index * symbolHeight + 300f
-            );
+        symbolContainer.anchoredPosition = new Vector2( 0f,-index * symbolHeight + 300f  );
     }
 
     public SlotSymbol GetCurrentSymbol()
