@@ -3,10 +3,12 @@ name: Deploy Unity WebGL Game
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
-      - 'SlotMachineBuild/WEBGL/**'
+      - 'SlotMachineBuild/WebGL/**'
       - '.github/workflows/main.yml'
+
   workflow_dispatch:
 
 permissions:
@@ -23,6 +25,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     runs-on: ubuntu-latest
 
     steps:
