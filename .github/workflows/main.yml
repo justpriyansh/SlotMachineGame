@@ -5,8 +5,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'Build/WebGL/**'
-      - '.github/workflows/deploy-webgl.yml'
+      - 'SlotMachineBuild/WebGL/**'
+      - '.github/workflows/main.yml'
   workflow_dispatch:
 
 permissions:
@@ -35,7 +35,7 @@ jobs:
       - name: Upload WebGL Build
         uses: actions/upload-pages-artifact@v3
         with:
-          path: Build/WebGL
+          path: SlotMachineBuild/WebGL
 
       - name: Deploy
         id: deployment
