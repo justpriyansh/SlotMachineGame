@@ -66,6 +66,8 @@ The project uses object-oriented programming and separates game responsibilities
 - `SlotRNG` – Generates random symbol results.
 - `PayoutSystem` – Calculates winning payouts.
 - `SlotUI` – Updates the user interface.
+## WebGL Link
+https://justpriyansh.github.io/SlotMachineGame/
 
 ## Author
 
